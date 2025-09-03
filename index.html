@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zecure Soluções em Segurança - Controle Financeiro</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--primary:#0d6efd;--bg:#f7f7fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--success:#16a34a;--danger:#dc2626;--border:#e5e7eb;}
+*{box-sizing:border-box;}body{font-family:Arial,sans-serif;margin:0;background:var(--bg);color:var(--text);}
+header{background:var(--card);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;}
+.brand{display:flex;align-items:center;gap:10px;}.brand img{width:50px;height:50px;object-fit:contain;}.brand h1{margin:0;font-size:18px;}
+.nav{display:flex;gap:8px;}.nav button{background:transparent;border:1px solid var(--border);padding:8px 12px;border-radius:8px;cursor:pointer;}
+.nav button.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.container{max-width:1100px;margin:0 auto;padding:16px;}
+.grid{display:grid;gap:16px;}@media(min-width:900px){.grid-cols-2{grid-template-columns:1fr 1fr;}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
+h2{font-size:18px;margin:0 0 10px;}
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:24px;}
+.login{width:100%;max-width:360px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.login h3{text-align:center;margin:0 0 12px;}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.field input{padding:10px;border:1px solid var(--border);border-radius:8px;}
+.btn{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;}
+.btn.secondary{background:#111827;}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
+.error{color:var(--danger);font-size:14px;display:none;}
+form.finance{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+form.finance select,input{padding:10px;border:1px solid var(--border);border-radius:8px;min-width:140px;flex:1;}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th,td{border:1px solid var(--border);padding:10px;text-align:left;}
+th{background:#f3f4f6;} td.num{text-align:right;}
+.entrada{color:var(--success);font-weight:700;} .gasto{color:var(--danger);font-weight:700;}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;}
+.kpi .label{color:var(--muted);font-size:12px;}
+.kpi .value{font-size:20px;font-weight:700;}
+section{display:none;} section.active{display:block;}
+</style>
+</head>
+<body>
+
+<div id="login-screen" class="login-wrap">
+<div class="login">
+<div style="text-align:center; margin-bottom:12px;">
+<img src="Logo.jpg" alt="Logo Zecure" style="width:80px;height:80px;object-fit:contain;">
+</div>
+<h3>Zecure Soluções em Segurança</h3>
+<div class="field"><label>Usuário</label><input id="username" type="text" placeholder="Zecure2025"></div>
+<div class="field"><label>Senha</label><input id="password" type="password" placeholder="••••••••"></div>
+<button class="btn" onclick="fazerLogin()">Entrar</button>
+<p class="error" id="login-erro">Usuário ou senha inválidos!</p>
+</div>
+</div>
+
+<div id="app" style="display:none;">
+<header>
+<div class="brand">
+<img src="Logo.jpg" alt="Logo Zecure">
+<h1>Zecure Soluções em Segurança</h1>
+</div>
+<nav class="nav">
+<button id="tab-registros" class="active" onclick="trocarAba('registros')">Registros</button>
+<button id="tab-analises" onclick="trocarAba('analises')">Análises</button>
+</nav>
+</header>
+
+<main class="container">
+<section id="sec-registros" class="active">
+<div class="card">
+<h2>Adicionar Movimento</h2>
+<form id="financeForm" class="finance" enctype="multipart/form-data">
+<select id="tipo" required>
+<option value="">Tipo</option>
+<option value="Entrada">Entrada</option>
+<option value="Gasto">Gasto</option>
+</select>
+<select id="categoria" required>
+<option value="">Categoria</option>
+<optgroup label="Receitas (Entradas)">
+<option value="Vendas">Vendas</option>
+<option value="Serviços">Serviços</option>
+<option value="Outras Receitas">Outras Receitas</option>
+</optgroup>
+<optgroup label="Custos & Despesas (Gastos)">
+<option value="Matéria-prima">Matéria-prima</option>
+<option value="Mão de obra">Mão de obra</option>
+<option value="Ferramentas e Equipamentos">Ferramentas e Equipamentos</option>
+<option value="Aquisições / Imobilizado">Aquisições / Imobilizado</option>
+<option value="Despesas Operacionais">Despesas Operacionais</option>
+<option value="Manutenção">Manutenção</option>
+<option value="Transporte / Logística">Transporte / Logística</option>
+<option value="Marketing">Marketing</option>
+<option value="Impostos / Tributos">Impostos / Tributos</option>
+<option value="Serviços Terceirizados">Serviços Terceirizados</option>
+<option value="Treinamentos">Treinamentos</option>
+<option value="Administrativas">Administrativas</option>
+<option value="Licenças / Softwares">Licenças / Softwares</option>
+<option value="Embalagens">Embalagens</option>
+<option value="Descarte / Resíduos">Descarte / Resíduos</option>
+<option value="Segurança / EPIs">Segurança / EPIs</option>
+<option value="Seguro">Seguro</option>
+<option value="Taxas Bancárias">Taxas Bancárias</option>
+</optgroup>
+</select>
+<input id="descricao" type="text" placeholder="Descrição" required>
+<input id="valor" type="number" step="0.01" placeholder="Valor (R$)" required>
+<input id="dataMov" type="date" required>
+<input id="arquivo" type="file" accept="image/*,.pdf">
+<button class="btn" type="submit">Adicionar</button>
+<button class="btn ghost" type="button" onclick="exportarCSV()">Exportar CSV</button>
+</form>
+</div>
+
+<div class="grid grid-cols-2">
+<div class="card">
+<h2>Movimentações</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Data</th><th>Tipo</th><th>Categoria</th><th>Descrição</th><th>Anexo</th><th style="text-align:right;">Valor (R$)</th>
+</tr>
+</thead>
+<tbody id="tabela-dados"></tbody>
+</table>
+</div>
+</div>
+<div class="card">
+<h2>Resumo</h2>
+<div class="kpis">
+<div class="kpi"><div class="label">Total Entradas</div><div class="value" id="total-entradas">0,00</div></div>
+<div class="kpi"><div class="label">Total Gastos</div><div class="value" id="total-gastos">0,00</div></div>
+<div class="kpi"><div class="label">Lucro / Saldo</div><div class="value" id="saldo">0,00</div></div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="sec-analises">
+<div class="grid grid-cols-2">
+<div class="card"><h2>Distribuição de Gastos por Categoria</h2><canvas id="chartCategoria"></canvas></div>
+<div class="card"><h2>Saldo Acumulado</h2><canvas id="chartSaldo"></canvas></div>
+</div>
+</section>
+</main>
+</div>
+
+<script>
+const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbyevZFtNhs7GFsxmKfaCI-3WCSB6gwnsS1NfVoMi_todIPWGBgm7Pn7-PxaWNh_KZOElA/exec"; // substitua pela URL do Web App
+
+let dados = [];
+
+function fmtBRL(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
+
+function fazerLogin(){
+  const u=document.getElementById("username").value;
+  const p=document.getElementById("password").value;
+  if(u==="Zecure2025" && p==="Teodoro2025!"){
+    document.getElementById("login-screen").style.display="none";
+    document.getElementById("app").style.display="block";
+    carregarDados();
+  } else document.getElementById("login-erro").style.display="block";
+}
+
+function trocarAba(aba){
+  document.getElementById('sec-registros').classList.remove('active');
+  document.getElementById('sec-analises').classList.remove('active');
+  document.getElementById('tab-registros').classList.remove('active');
+  document.getElementById('tab-analises').classList.remove('active');
+  if(aba==='registros'){document.getElementById('sec-registros').classList.add('active');document.getElementById('tab-registros').classList.add('active');}
+  else{document.getElementById('sec-analises').classList.add('active');document.getElementById('tab-analises').classList.add('active');desenharGraficos();}
+}
+
+async function carregarDados(){
+  const res=await fetch(APPSCRIPT_URL);
+  dados=await res.json();
+  const tabela=document.getElementById("tabela-dados");
+  tabela.innerHTML="";
+  let entradas=0,gastos=0;
+  dados.slice(1).forEach(r=>{
+    const dt=r[0]?new Date(r[0]):null;
+    const tipo=r[1],cat=r[2],desc=r[3],val=parseFloat(r[4]||0),anexo=r[5]?`<a href="${r[5]}" target="_blank">Ver</a>`:'-';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${dt?dt.toLocaleDateString():'-'}</td>
+                  <td class="${tipo==='Entrada'?'entrada':'gasto'}">${tipo||'-'}</td>
+                  <td>${cat||'-'}</td>
+                  <td>${desc||'-'}</td>
+                  <td>${anexo}</td>
+                  <td class="num">${fmtBRL(val)}</td>`;
+    tabela.appendChild(tr);
+    if(tipo==='Entrada') entradas+=val; else if(tipo==='Gasto') gastos+=val;
+  });
+  document.getElementById("total-entradas").textContent=fmtBRL(entradas);
+  document.getElementById("total-gastos").textContent=fmtBRL(gastos);
+  document.getElementById("saldo").textContent=fmtBRL(entradas-gastos);
+  desenharGraficos();
+}
+
+document.getElementById("financeForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const tipo=document.getElementById("tipo").value;
+  const categoria=document.getElementById("categoria").value;
+  const descricao=document.getElementById("descricao").value;
+  const valor=document.getElementById("valor").value;
+  const data=document.getElementById("dataMov").value;
+  const arquivo=document.getElementById("arquivo").files[0];
+  if(arquivo){
+    const reader=new FileReader();
+    reader.onload=async evt=>{
+      const base64=evt.target.result.split(",")[1];
+      await fetch(APPSCRIPT_URL,{method:"POST",body:JSON.stringify({tipoMov:tipo,categoria,descricao,valor,data,nomeArquivo:arquivo.name,dadosBase64:base64,tipo:arquivo.type})});
+      carregarDados();
+    };
+    reader.readAsDataURL(arquivo);
+  } else{
+    await fetch(APPSCRIPT_URL,{method:"POST",body:JSON.stringify({tipoMov:tipo,categoria,descricao,valor,data})});
+    carregarDados();
+  }
+});
+
+function exportarCSV(){
+  let csv="Data,Tipo,Categoria,Descrição,Valor,Anexo\n";
+  dados.slice(1).forEach(r=>{csv+=`${r[0]},${r[1]},${r[2]},${r[3]},${r[4]},${r[5]||''}\n`;});
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="relatorio_financeiro.csv";
+  a.click();
+}
+
+let chartCategoria, chartSaldo;
+function desenharGraficos(){
+  const ctxC=document.getElementById("chartCategoria").getContext("2d");
+  const ctxS=document.getElementById("chartSaldo").getContext("2d");
+  const categorias={}, saldoAcum=[];
+  let saldo=0;
+  dados.slice(1).forEach(r=>{
+    const tipo=r[1],cat=r[2],val=parseFloat(r[4]||0);
+    if(tipo==='Gasto') categorias[cat]=(categorias[cat]||0)+val;
+    if(tipo==='Entrada') saldo+=val; else saldo-=val;
+    saldoAcum.push(saldo);
+  });
+  if(chartCategoria) chartCategoria.destroy();
+  chartCategoria=new Chart(ctxC,{type:'pie',data:{labels:Object.keys(categorias),datasets:[{label:'Gastos por categoria',data:Object.values(categorias),backgroundColor:['#0d6efd','#dc2626','#16a34a','#f59e0b','#9333ea','#14b8a6','#f43f5e','#eab308']}]},options:{responsive:true}});
+  if(chartSaldo) chartSaldo.destroy();
+  chartSaldo=new Chart(ctxS,{type:'line',data:{labels:dados.slice(1).map((r,i)=>i+1),datasets:[{label:'Saldo Acumulado',data:saldoAcum,borderColor:'#0d6efd',fill:false}]},options:{responsive:true,scales:{x:{title:{display:true,text:'Movimentos'}},y:{title:{display:true,text:'Saldo (R$)'}}}}});
+}
+</script>
+
+</body>
+</html>
